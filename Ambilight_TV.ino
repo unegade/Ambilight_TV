@@ -3,8 +3,9 @@
 //----------------------НАСТРОЙКИ-----------------------
 #define NUM_LEDS 206        // число светодиодов в ленте
 #define DI_PIN 13           // пин, к которому подключена лента
-#define OFF_TIME 10         // время (секунд), через которое лента выключится при пропадаании сигнала
+#define OFF_TIME 61         // время (секунд), через которое лента выключится при пропадаании сигнала
 #define serialRate 115200   // скорость связи с ПК
+#define CURRENT_LIMIT 0
 //----------------------НАСТРОЙКИ-----------------------
 
 int new_bright, new_bright_f;
@@ -27,6 +28,16 @@ void check_connection() {
     if (millis() - off_timer > (OFF_TIME * 1000)) {
       led_state = false;
       FastLED.clear();
+      for (int i = 147; i <= 200; i+=3 ) {         
+          leds[i-1].r = 15;
+          leds[i-1].g = 0;
+          leds[i-1].b = 60;
+      }
+      for (int i = 43; i <= 100; i+=3 ) {         
+          leds[i-1].r = 15;
+          leds[i-1].g = 0;
+          leds[i-1].b = 60;
+      }      
       FastLED.show();
     }
   }
@@ -35,7 +46,7 @@ void check_connection() {
 void loop() {
   if (!led_state) led_state = true;
   off_timer = millis();  
-
+  
   for (i = 0; i < sizeof prefix; ++i) {
     waitLoop: while (!Serial.available()) check_connection();;
     if (prefix[i] == Serial.read()) continue;
@@ -61,7 +72,6 @@ void loop() {
     // читаем данные для каждого цвета
     while (!Serial.available()) check_connection();
     r = Serial.read();
-    Serial.write(r);
     while (!Serial.available()) check_connection();
     g = Serial.read();
     while (!Serial.available()) check_connection();
